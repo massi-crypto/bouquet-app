@@ -25,21 +25,26 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const login = async (loginData) => {
-    try {
-      const response = await myFetch('/users/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(loginData)
-      });
-      
-      setUser(response.user);
-      return { success: true, user: response.user };
-    } catch (error) {
-      console.error('Erreur login:', error);
-      return { success: false, error: 'Identifiants invalides' };
+const login = async (loginData) => {
+  try {
+    const response = await myFetch('/users/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(loginData)
+    });
+    
+    // Stocker le token dans localStorage
+    if (response.token) {
+      localStorage.setItem('jwt_token', response.token);
     }
-  };
+    
+    setUser(response.user);
+    return { success: true, user: response.user };
+  } catch (error) {
+    console.error('Erreur login:', error);
+    return { success: false, error: 'Identifiants invalides' };
+  }
+};
 
   const register = async (userData) => {
     try {

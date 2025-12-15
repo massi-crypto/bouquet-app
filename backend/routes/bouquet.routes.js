@@ -20,4 +20,7 @@ router.put("/:id", controller.updateBouquet);
 // Supprimer un bouquet
 router.delete("/:id", controller.deleteBouquet);
 
+// Récupérer les utilisateurs qui ont liké
+router.get("/:id/likers", controller.getBouquetLikers);
+
 module.exports = router;

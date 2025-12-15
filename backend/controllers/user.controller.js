@@ -1,4 +1,5 @@
 const db = require("../models");
+const jwt = require('../middleware/auth');
 
 // Créer un utilisateur
 exports.createUser = async (req, res) => {
@@ -207,5 +208,39 @@ exports.updateProfile = async (req, res) => {
   } catch (error) {
     console.error("Erreur updateProfile:", error);
     res.status(500).json({ message: "Erreur lors de la mise à jour" });
+  }
+};
+
+
+exports.login = async (req, res) => {
+  try {
+    const { login, password } = req.body;
+    
+    const user = await db.User.findOne({ where: { login } });
+    
+    if (!user || user.password !== password) {
+      return res.status(401).json({ message: "Identifiants invalides" });
+    }
+    
+    // Générer le token JWT
+    const token = jwt.generateToken(user);
+    
+    // Garder aussi la session pour compatibilité
+    req.session.userId = user.id;
+    req.session.user = {
+      id: user.id,
+      login: user.login,
+      nomComplet: user.nomComplet,
+      role: user.role
+    };
+    
+    res.json({ 
+      message: "Connexion réussie", 
+      user: req.session.user,
+      token // Envoyer le token au frontend
+    });
+  } catch (error) {
+    console.error("Erreur login:", error);
+    res.status(500).json({ message: "Erreur lors de la connexion" });
   }
 };

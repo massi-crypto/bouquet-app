@@ -168,3 +168,28 @@ exports.deleteBouquet = async (req, res) => {
     res.status(500).json({ message: "Erreur lors de la suppression" });
   }
 };
+
+// Récupérer les utilisateurs qui ont liké un bouquet
+exports.getBouquetLikers = async (req, res) => {
+  try {
+    const bouquetId = req.params.id;
+
+    const bouquet = await db.Bouquet.findByPk(bouquetId, {
+      include: [{
+        model: db.User,
+        as: 'Likers',
+        attributes: ['id', 'nomComplet', 'login'],
+        through: { attributes: [] }
+      }]
+    });
+
+    if (!bouquet) {
+      return res.status(404).json({ message: "Bouquet introuvable" });
+    }
+
+    res.json(bouquet.Likers);
+  } catch (error) {
+    console.error("Erreur getBouquetLikers:", error);
+    res.status(500).json({ message: "Erreur interne" });
+  }
+};
